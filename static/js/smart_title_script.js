@@ -106,7 +106,7 @@ function formatLocationForOutput(rawLocation) {
  * 提取批次信息
  */
 function extractBatchInfo(text) {
-    const match = text.match(/(第[\u4e00-\u9fa5\d]+(?:批|期))/);
+    const match = text.match(/(第[\u4e00-\u9fa5\d]+(?:批|届))/);
     return match ? match[1] : null;
 }
 
@@ -263,7 +263,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
     } while (removedRedundantPhrase);
 
 
-    const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '新概念中心']; 
+    const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '概念中心']; 
 
     const strongNonSwitchableVerbs = ['补助', '资助']; 
 
@@ -338,7 +338,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
     const allVerbsAndRedundantWordsToCleanFromMainPart = new Set([
         ...defaultFundingVerbs,        
         ...strongNonSwitchableVerbs,   
-        '贴息', '认定',                
+        '贴息', '认定', '兑现',                
         '发放', '实施', '开展', '进行', '举办',
         '申报' 
     ]);
