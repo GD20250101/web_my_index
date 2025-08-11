@@ -433,7 +433,7 @@ function copyOutputSmartTitle() {
 
     navigator.clipboard.writeText(textToCopy).then(() => {
         if (typeof showNotification === 'function') {
-            showNotification('复制成功');
+            showNotification('复制成功'); // 统一提示语
         }
     }).catch(err => {
         console.error('复制失败', err); 
