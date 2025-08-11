@@ -1,5 +1,6 @@
 /*
  * style.css - 自定义样式文件
+ *
  * 您可以在这里添加任何自定义的CSS规则
  */
 
@@ -116,4 +117,29 @@ textarea {
 .btn-secondary:hover,
 .btn-success:hover {
     transform: translateY(-3px); /* 鼠标悬停时向上移动3像素 */
+}
+
+/* --- 以下是为“生成标题”功能新增和调整的CSS样式 --- */
+
+/* 覆盖智能标题textarea的最小高度，采用副网页的设置 */
+#v-pills-smart-title textarea.form-control {
+    min-height: 100px; 
+}
+
+/* 清空、生成、复制按钮的尺寸将由Bootstrap的.btn类以及父容器的d-flex控制 */
+#v-pills-smart-title button.btn-primary,
+#v-pills-smart-title button.btn-secondary,
+#v-pills-smart-title button.btn-success {
+    /* 它们现在将继承Bootstrap的display: inline-block;，并根据内容自适应宽度 */
+}
+
+/* 转换资助方式按钮的特定样式覆盖 */
+#convertVerbButton.btn-secondary {
+    padding: 8px 15px; /* 保持副网页的较小内边距 */
+    font-size: 0.9em; /* 保持副网页的较小字体 */
+    background-color: #6c757d; /* 副网页的灰色按钮颜色 */
+    /* Bootstrap的btn-secondary类提供了border, color等，这里主要覆盖背景色 */
+}
+#convertVerbButton.btn-secondary:hover {
+    background-color: #5a6268; /* 副网页的hover颜色 */
 }

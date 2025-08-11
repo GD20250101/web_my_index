@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>高效做项目工具 - Web版</title>
-    <!-- Bootstrap CSS - 指向本地文件 -->
+    <!-- Bootstrap CSS -->
     <link href="./static/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./static/css/style.css">
 </head>
 <body>
-    <!-- 整体容器，h-100表示高度100%，d-flex flex-column使其内容垂直排列 -->
+    <!-- 整体容器 -->
     <div class="container-fluid h-100 d-flex flex-column">
-        <!-- 顶部状态栏 - 仅作标题显示 -->
+        <!-- 顶部状态栏 -->
         <header class="row bg-light p-2 border-bottom">
-            <div class="col-12 text-center"> <!-- 添加 text-center 类 -->
-                <span id="status-message" class="text-dark">高效做项目工具</span> <!-- 修改标题文字 -->
+            <div class="col-12 text-center">
+                <span id="status-message" class="text-dark">高效做项目工具</span>
             </div>
         </header>
 
@@ -29,13 +29,13 @@
                     <button class="nav-link" id="v-pills-level2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-level2" type="button" role="tab" aria-controls="v-pills-level2" aria-selected="false" data-func-id="2">二级序号</button>
                     <button class="nav-link" id="v-pills-twolevel-tab" data-bs-toggle="pill" data-bs-target="#v-pills-twolevel" type="button" role="tab" aria-controls="v-pills-twolevel" aria-selected="false" data-func-id="3">
                         两级序号 
-                        <!-- 从导航按钮移除GIF触发器，因为用户要求移到输入框旁 -->
                     </button>
                     <button class="nav-link" id="v-pills-delete-tab" data-bs-toggle="pill" data-bs-target="#v-pills-delete" type="button" role="tab" aria-controls="v-pills-delete" aria-selected="false" data-func-id="4">删除序号</button>
                     <button class="nav-link" id="v-pills-addbr-tab" data-bs-toggle="pill" data-bs-target="#v-pills-addbr" type="button" role="tab" aria-controls="v-pills-addbr" aria-selected="false" data-func-id="5">加换行符</button>
-                    <!-- "文本分段" 按钮已移除 -->
                     <button class="nav-link" id="v-pills-smart-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smart" type="button" role="tab" aria-controls="v-pills-smart" aria-selected="false" data-func-id="11">智能处理</button>
                     <button class="nav-link" id="v-pills-quickcopy-tab" data-bs-toggle="pill" data-bs-target="#v-pills-quickcopy" type="button" role="tab" aria-controls="v-pills-quickcopy" aria-selected="false" data-func-id="6">快捷复制</button>
+                    
+                    <button class="nav-link" id="v-pills-smart-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smart-title" type="button" role="tab" aria-controls="v-pills-smart-title" aria-selected="false" data-func-id="12">生成标题</button>
                 </div>
             </nav>
 
@@ -93,7 +93,7 @@
                                 请输入或粘贴需要修改的文本
                                 <span class="text-info" data-bs-toggle="tooltip" data-bs-placement="right" 
                                       title="使用两级序号转换功能前，需要先将文本分别在一级序号和二级序号转换完成">
-                                    ◎ <!-- 已将 &#x2139; (ℹ) 替换为 &#x25CE; (◎) -->
+                                    ◎
                                 </span>
                             </label>
                             <textarea class="form-control placeholder-text" id="input_text_twolevel" rows="3" placeholder="一级序号转换为（1）（2）...格式，二级序号转换为①②...格式"></textarea>
@@ -156,14 +156,11 @@
                         </div>
                     </div>
 
-                    <!-- "文本分段" Tab 已移除 -->
-
                     <!-- Tab 7: 智能处理 -->
                     <div class="tab-pane fade" id="v-pills-smart" role="tabpanel" aria-labelledby="v-pills-smart-tab">
                         <div class="mb-3">
                             <label for="input_text_smart" class="form-label">
                                 请输入或粘贴需要清理的文本
-                                <!-- 智能处理功能不再需要GIF触发器 -->
                             </label>
                             <textarea class="form-control placeholder-text" id="input_text_smart" rows="3" placeholder="删除空格键和换行符；所有的英文标点为中文标点（网址和时间不会转换）；判断用户粘贴的文本有无序号进行智能分段。"></textarea>
                         </div>
@@ -194,6 +191,35 @@
                         </div>
                     </div>
 
+                    <!-- Tab Pane: 智能标题生成 -->
+                    <div class="tab-pane fade" id="v-pills-smart-title" role="tabpanel" aria-labelledby="v-pills-smart-title-tab">
+                        <div class="mb-3">
+                            <label for="inputTitle" class="form-label">
+                                请输入申报通知标题：
+                                <span class="text-info" data-bs-toggle="tooltip" data-bs-placement="right" 
+                                      title="生成的标题仅供参考，可能需要人为进行最终修改">
+                                    ◎
+                                </span>
+                            </label>
+                            <textarea class="form-control placeholder-text" id="inputTitle" rows="3" placeholder="自动生成标题（因逻辑复杂，结果无法保证完全准确）"></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center mb-3">
+                            <button type="button" class="btn btn-secondary me-2" onclick="clearInputSmartTitle()">清空</button>
+                            <button type="button" class="btn btn-primary" onclick="generateTitle()">生成</button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">输出结果</label>
+                            <div class="form-control" style="min-height: 60px; overflow-wrap: break-word; padding: 0.375rem 0.75rem;"><span id="outputTitle">等待输入...</span></div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success me-2" onclick="copyOutputSmartTitle()">复制</button>
+                            <button id="convertVerbButton" class="btn btn-secondary" onclick="cycleFundingVerb()" style="display: none;">更换</button>
+                        </div>
+                    </div>
+
                 </div>
             </main>
         </div>
@@ -203,12 +229,10 @@
     <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
-                <strong class="me-auto">提示</strong> <!-- "通知"改为"提示" -->
-                <!-- <small>现在</small> --> <!-- "现在"字样移除 -->
+                <strong class="me-auto">提示</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body" id="toast-message">
-                <!-- 消息文本将注入到这里 -->
             </div>
         </div>
     </div>
@@ -222,7 +246,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="keywordAlertModalBody">
-                    <!-- 提示消息将注入到这里 -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确认关闭</button>
@@ -231,9 +254,16 @@
         </div>
     </div>
     
-    <!-- Bootstrap JS Bundle with Popper - 指向本地文件 -->
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="./static/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JavaScript -->
+    <!-- Custom JavaScript - 核心公共文件，必须先加载 -->
     <script src="./static/js/script.js"></script>
+    <!-- 新拆分的功能文件 -->
+    <script src="./static/js/level1_level2_quickcopy_script.js"></script>
+    <script src="./static/js/two_level_script.js"></script>
+    <script src="./static/js/delete_addbr_script.js"></script>
+    <script src="./static/js/smart_process_script.js"></script>
+    <!-- 智能标题生成功能的独立JavaScript文件 -->
+    <script src="./static/js/smart_title_script.js"></script> 
 </body>
 </html>
