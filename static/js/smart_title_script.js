@@ -263,7 +263,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
     } while (removedRedundantPhrase);
 
 
-    const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '概念中心']; 
+    const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '概念中心','机构']; 
 
     const strongNonSwitchableVerbs = ['补助', '资助']; 
 
@@ -524,7 +524,7 @@ function copyOutputSmartTitle() {
 
     navigator.clipboard.writeText(textToCopy).then(() => {
         if (typeof showNotification === 'function') {
-            showNotification('生成标题已复制！');
+            showNotification('标题已复制');
         }
     }).catch(err => {
         console.error('复制失败:', err); 
