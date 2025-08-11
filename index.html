@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高效做项目工具 - Web版</title>
+    <title>高效做项目工具-Web版</title>
     <!-- Bootstrap CSS -->
     <link href="./static/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -197,11 +197,11 @@
                             <label for="inputTitle" class="form-label">
                                 请输入申报通知标题：
                                 <span class="text-info" data-bs-toggle="tooltip" data-bs-placement="right" 
-                                      title="生成的标题仅供参考，可能需要人为进行最终修改">
+                                      title="因逻辑复杂，生成的标题仅供参考，可能需要人为进行最终修改">
                                     ◎
                                 </span>
                             </label>
-                            <textarea class="form-control placeholder-text" id="inputTitle" rows="3" placeholder="自动生成标题（因逻辑复杂，结果无法保证完全准确）"></textarea>
+                            <textarea class="form-control placeholder-text" id="inputTitle" rows="3" placeholder="根据申报通知生成项目标题（因逻辑复杂，结果无法保证完全准确，请注意甄别结果是否符合申报通知内容）"></textarea>
                         </div>
                         
                         <div class="d-flex justify-content-center mb-3">
@@ -216,7 +216,7 @@
                         
                         <div class="d-flex justify-content-center">
                             <button type="button" class="btn btn-success me-2" onclick="copyOutputSmartTitle()">复制</button>
-                            <button id="convertVerbButton" class="btn btn-secondary" onclick="cycleFundingVerb()" style="display: none;">更换</button>
+                            <button id="convertVerbButton" class="btn btn-secondary" onclick="cycleFundingVerb()">更换</button>
                         </div>
                     </div>
 
@@ -258,7 +258,6 @@
     <script src="./static/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript - 核心公共文件，必须先加载 -->
     <script src="./static/js/script.js"></script>
-    <!-- 新拆分的功能文件 -->
     <script src="./static/js/level1_level2_quickcopy_script.js"></script>
     <script src="./static/js/two_level_script.js"></script>
     <script src="./static/js/delete_addbr_script.js"></script>

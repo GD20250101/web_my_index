@@ -20,8 +20,9 @@ const PRESET_QUICK_COPY_TEXTS = [
     "申报主体应为",
     "申报主体需符合以下条件：",
     "申报主体需符合以下条件之一：",
-	"详见相关文件《附件材料》。",
     "详见相关文件《》。",
+	"详见相关文件《附件材料》。",
+	"详见相关本通知附件。",
     "按要求提供。",
     "加盖公章。",
     "具体包含以下材料：",
@@ -31,7 +32,7 @@ const PRESET_QUICK_COPY_TEXTS = [
 function renderQuickCopyArea(texts) {
     const quickCopyArea = document.getElementById('quick_copy_area');
     if (!quickCopyArea) {
-        console.error("错误：未找到快捷复制区域元素！");
+        console.error("错误未找到快捷复制区域元素");
         return;
     }
     quickCopyArea.innerHTML = ''; 
@@ -61,7 +62,7 @@ function renderQuickCopyArea(texts) {
             quickCopyArea.appendChild(div);
         });
     } else {
-        quickCopyArea.innerHTML = '<p class="text-muted text-center py-4">暂无快捷复制内容。</p>';
+        quickCopyArea.innerHTML = '<p class="text-muted text-center py-4">暂无快捷复制内容</p>';
     }
 }
 
@@ -69,9 +70,9 @@ function copyToClipboard(text) {
     // showNotification 是 script.js 中定义的公共函数
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-            showNotification('文本已复制！');
+            showNotification('复制成功');
         }).catch(err => {
-            console.error('复制到剪贴板失败:', err);
+            console.error('复制到剪贴板失败', err);
             const textarea = document.createElement('textarea');
             textarea.value = text;
             textarea.style.position = 'fixed'; 
@@ -80,10 +81,10 @@ function copyToClipboard(text) {
             textarea.select();
             try {
                 document.execCommand('copy');
-                showNotification('文本已复制！');
+                showNotification('复制成功');
             } catch (execErr) {
-                console.error('execCommand 复制失败:', execErr);
-                showNotification('复制失败，请手动复制。');
+                console.error('execCommand 复制失败', execErr);
+                showNotification('复制失败请手动复制');
             } finally {
                 document.body.removeChild(textarea);
             }
@@ -95,10 +96,10 @@ function copyToClipboard(text) {
         textarea.select();
         try {
             document.execCommand('copy');
-            showNotification('文本已复制！');
+            showNotification('复制成功');
         } catch (execErr) {
-            console.error('execCommand 复制失败:', execErr);
-            showNotification('复制失败，请手动复制。');
+            console.error('execCommand 复制失败', execErr);
+            showNotification('复制失败请手动复制');
         } finally {
             document.body.removeChild(textarea);
         }

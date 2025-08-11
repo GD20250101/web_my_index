@@ -1,11 +1,19 @@
 // smart_title_script.js - 智能标题生成功能
 
 // --- Global Variables ---
-const defaultFundingVerbs = ['支持', '奖励', '扶持', '征集', '入库', '奖补', '申报', '遴选', '补贴', '评选']; 
+// defaultFundingVerbs 是原始的通用可切换列表
+const defaultFundingVerbs = ['支持', '奖励', '扶持', '征集', '入库', '奖补', '遴选', '补贴', '评选','认定', '贴息支持', '补助', '资助'];
+// 特定识别关键词对应的资助方式，这些是优先匹配的初始资助方式
+const specificRecognitionVerbs = ['认定', '贴息支持', '补助', '资助'];
+
+// 所有可循环的动词列表，用于初始化和循环
+// 确保更具体、更长的词汇排在前面，以便在检测 initialVerb 时优先匹配
+const ALL_CYCLABLE_VERBS = [...new Set([...specificRecognitionVerbs, ...defaultFundingVerbs])];
+ALL_CYCLABLE_VERBS.sort((a, b) => b.length - a.length); // 按长度降序排序，确保长词优先匹配
+
 let currentVerbIndex = 0;
-let originalCoreText = ''; 
-let originalDateLocationSuffix = ''; 
-let isDefaultSupportUsed = false; 
+let originalCoreText = '';
+let originalDateLocationSuffix = '';
 
 // --- Utility Functions (Extraction and Formatting) ---
 
@@ -106,38 +114,38 @@ function formatLocationForOutput(rawLocation) {
  * 提取批次信息
  */
 function extractBatchInfo(text) {
-    const match = text.match(/(第[\u4e00-\u9fa5\d]+(?:批|期))/);
+    const match = text.match(/(第[\u4e00-\u9fa5\d]+(?:批|届))/);
     return match ? match[1] : null;
 }
 
 /**
- * 处理核心文本并确定资助方式
+ * 处理核心文本并确定初始动词
+ * 此函数现在负责提取项目核心名称和最佳匹配的初始动词
  */
 function processCoreText(originalInput, detectedYear, detectedRawLocation) {
     let text = originalInput; 
-    let fundingSuffix = ''; 
-    let defaultSupportNeeded = false; 
+    let initialVerb = ''; // 用于存储识别到的初始动词
 
+    // 0. 特殊处理“市级引导区县科技发展专项资金”
     if (originalInput.includes("市级引导区县科技发展专项资金")) {
-        return {
-            coreText: "市级引导区县科技发展专项资金项目", 
-            fundingSuffix: "", 
-            isDefaultSupport: false 
-        };
+        // 固定标题，不涉及资助方式切换，因此 initialVerb 留空
+        return { coreText: "市级引导区县科技发展专项资金项目", initialVerb: "" }; 
     }
     
+    // 1. 尝试从《》中提取核心文本
     const bookTitleMatch = text.match(/《([\s\S]+?)》/);
     if (bookTitleMatch && bookTitleMatch[1]) {
         text = bookTitleMatch[1].trim();
     } else {
+        // 2. 尝试根据常见开头标记截取文本
         const contentStartMarkers = ['关于', '组织申报', '开展', '受理', '申报', '征集', '印发', '通知', '通告', '方案'];
         let earliestMarkerIndex = -1;
         
         for (const marker of contentStartMarkers) {
             const index = text.indexOf(marker);
             if (index !== -1) {
-                if (earliestMarkerIndex === -1 || index < earliestMarkerIndex) {
-                    if (index === 0 || (text[index - 1] && /\s|[局厅委办府会心]\s*$/.test(text.substring(0, index)))) { 
+                if (index === 0 || (text[index - 1] && /\s|[局厅委办府会心]\s*$/.test(text.substring(0, index)))) { 
+                    if (earliestMarkerIndex === -1 || index < earliestMarkerIndex) {
                         earliestMarkerIndex = index;
                     }
                 }
@@ -148,6 +156,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
             text = text.substring(earliestMarkerIndex).trim();
         }
 
+        // 3. 移除前导冗余短语
         const leadingPrefixes = [
             '关于组织申报', '关于开展', '关于受理', '关于申报', '组织申报', '组织开展', '受理', '开展', '申报', '征集', '印发', '通知', '通告', '方案', '关于', '做好', '组织' 
         ];
@@ -164,6 +173,20 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
             }
         } while (removedSomething);
     }
+
+    // 4. 从原始输入中识别并存储最佳匹配的初始动词/后缀
+    // 遍历 ALL_CYCLABLE_VERBS (已按长度降序排序) 寻找最佳匹配作为 initialVerb
+    for (const verb of ALL_CYCLABLE_VERBS) {
+        if (originalInput.includes(verb)) { 
+            initialVerb = verb;
+            break; // 找到最具体的匹配就停止
+        }
+    }
+    // 如果没有检测到任何动词，设置一个默认值（例如 defaultFundingVerbs 的第一个）
+    if (!initialVerb) {
+        initialVerb = defaultFundingVerbs[0]; 
+    }
+
 
     let mainPart = text; 
     const allClosingMarkersForTruncation = [
@@ -243,115 +266,25 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
         mainPart = mainPart.substring(0, firstProjectIndex + projectKeyword.length).trim();
     }
 
-    const redundantActionPhrases = [
+    // 移除所有可能作为动词或冗余的词汇，确保核心文本干净
+    // 注意：ALL_CYCLABLE_VERBS 包含所有资助动词，也需要从 mainPart 中移除
+    const allWordsToCleanFromMainPart = new Set([
+        ...ALL_CYCLABLE_VERBS,        
         '申报工作', '遴选工作', '评选工作', '兑现申请', '申请工作', '实施工作', '开展工作', '进行工作', '举办工作',
         '入选项目库', '入选库', '资金', '若干政策申报' 
-    ];
-    redundantActionPhrases.sort((a,b) => b.length - a.length); 
+    ]);
+    const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '概念中心','机构']; 
 
     let removedRedundantPhrase;
     do {
         removedRedundantPhrase = false;
-        for (const phrase of redundantActionPhrases) {
-            const regex = new RegExp(phrase, 'g'); 
-            const prevLength = mainPart.length;
-            mainPart = mainPart.replace(regex, '').trim();
-            if (mainPart.length < prevLength) {
-                removedRedundantPhrase = true;
-            }
-        }
-    } while (removedRedundantPhrase);
-
-
-    const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '新概念中心']; 
-
-    const strongNonSwitchableVerbs = ['补助', '资助']; 
-
-    let foundSpecificSuffixRule = false; 
-
-    if (originalInput.includes('贴息')) {
-        fundingSuffix = '贴息支持'; 
-        foundSpecificSuffixRule = true; 
-        defaultSupportNeeded = false; 
-    }
-    
-    if (!foundSpecificSuffixRule) { 
-        let isRecognitionType = false;
-        for (const keyword of recognitionKeywords) {
-            if (originalInput.includes(keyword)) { 
-                isRecognitionType = true;
-                break;
-            }
-        }
-        if (isRecognitionType) {
-            fundingSuffix = '认定';
-            foundSpecificSuffixRule = true; 
-            defaultSupportNeeded = false; 
-        }
-    }
-
-    if (!foundSpecificSuffixRule && originalInput.includes('申报') && 
-        (originalInput.includes('项目') || originalInput.includes('资金') || originalInput.includes('案例'))) {
-        defaultSupportNeeded = true; 
-        fundingSuffix = defaultFundingVerbs[currentVerbIndex]; 
-        foundSpecificSuffixRule = true; 
-    }
-
-    if (!foundSpecificSuffixRule && originalInput.includes('入库')) {
-        const relevantPartBeforeClosing = originalInput.split(/(?:的通知|工作|指南|指引|方案|通告|公告)/)[0];
-        
-        if ((relevantPartBeforeClosing.endsWith('入库') || originalInput.includes('项目入库') || originalInput.includes('资金入库')) && 
-            !originalInput.includes('申报')) { 
-            fundingSuffix = '入库';
-            foundSpecificSuffixRule = true;
-            defaultSupportNeeded = false; 
-        }
-    }
-
-    if (!foundSpecificSuffixRule) { 
-        for (const verb of strongNonSwitchableVerbs) {
-            if (originalInput.includes(verb)) { 
-                fundingSuffix = verb; 
-                foundSpecificSuffixRule = true;
-                defaultSupportNeeded = false; 
-                break;
-            }
-        }
-    }
-
-    if (!foundSpecificSuffixRule && 
-        (originalInput.includes('申报指南') && originalInput.includes('项目') || originalInput.includes('申请指南') && originalInput.includes('项目'))) { 
-        fundingSuffix = ''; 
-        foundSpecificSuffixRule = true; 
-        defaultSupportNeeded = false;
-    }
-    
-    if (!foundSpecificSuffixRule && 
-        (originalInput.includes('项目') || originalInput.includes('资金') || originalInput.includes('案例') || defaultFundingVerbs.some(verb => originalInput.includes(verb)))
-       ) {
-        defaultSupportNeeded = true;
-        fundingSuffix = defaultFundingVerbs[currentVerbIndex]; 
-    }
-    
-    let cleanedMainPart = mainPart;
-
-    const allVerbsAndRedundantWordsToCleanFromMainPart = new Set([
-        ...defaultFundingVerbs,        
-        ...strongNonSwitchableVerbs,   
-        '贴息', '认定',                
-        '发放', '实施', '开展', '进行', '举办',
-        '申报' 
-    ]);
-
-    let verbCleanedSomething;
-    do {
-        verbCleanedSomething = false;
-        const sortedWordsToClean = Array.from(allVerbsAndRedundantWordsToCleanFromMainPart).sort((a, b) => b.length - a.length);
+        const sortedWordsToClean = Array.from(allWordsToCleanFromMainPart).sort((a, b) => b.length - a.length);
         
         for (const word of sortedWordsToClean) {
             let shouldPreserveWord = false;
             for (const rk of recognitionKeywords) {
-                if (rk === word || (rk.includes(word) && word.length < rk.length)) { 
+                // 如果当前词是识别关键词的一部分，且不是 ALL_CYCLABLE_VERBS 中的动词，则保留
+                if (rk === word || (rk.includes(word) && word.length < rk.length && !ALL_CYCLABLE_VERBS.includes(word))) { 
                     shouldPreserveWord = true;
                     break;
                 }
@@ -361,25 +294,18 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
             }
 
             const regex = new RegExp(word, 'g'); 
-            const prevLength = cleanedMainPart.length;
-            cleanedMainPart = cleanedMainPart.replace(regex, '').trim();
-            if (cleanedMainPart.length < prevLength) {
-                verbCleanedSomething = true;
+            const prevLength = mainPart.length;
+            mainPart = mainPart.replace(regex, '').trim();
+            if (mainPart.length < prevLength) {
+                removedRedundantPhrase = true;
             }
         }
-    } while (verbCleanedSomething);
-    mainPart = cleanedMainPart; 
+    } while (removedRedundantPhrase);
 
-    const finalVerb = fundingSuffix;
-    if (finalVerb && (defaultFundingVerbs.includes(finalVerb) || strongNonSwitchableVerbs.includes(finalVerb) || finalVerb === '贴息' || finalVerb === '认定')) {
-        mainPart = mainPart.replace(new RegExp(finalVerb, 'g'), '').trim();
-        mainPart = mainPart.replace(/[\(（]\s*[\)）]/g, '').trim();
-        mainPart = mainPart.replace(/\s+/g, ' ').trim(); 
-    }
+    mainPart = mainPart.replace(/[\(（]\s*[\)）]/g, '').trim(); 
+    mainPart = mainPart.replace(/\s+/g, ' ').trim(); 
 
-    mainPart = mainPart.replace(/\s+/g, ' ').trim();
-
-    return { coreText: mainPart, fundingSuffix: fundingSuffix, isDefaultSupport: defaultSupportNeeded };
+    return { coreText: mainPart, initialVerb: initialVerb };
 }
 
 // --- Main Control Function ---
@@ -387,8 +313,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
 function generateTitle() {
     const inputTextArea = document.getElementById('inputTitle');
     const outputTitleSpan = document.getElementById('outputTitle');
-    const convertButton = document.getElementById('convertVerbButton');
-
+    
     let input = '';
     if (inputTextArea && inputTextArea.classList.contains('placeholder-active')) {
         input = ''; 
@@ -397,11 +322,9 @@ function generateTitle() {
     }
     
     if (!input) {
-        outputTitleSpan.textContent = '请输入原始标题！';
-        convertButton.style.display = 'none';
-        isDefaultSupportUsed = false;
+        outputTitleSpan.textContent = '请输入原始标题';
         if (typeof showNotification === 'function') {
-            showNotification('请输入原始标题！');
+            showNotification('请输入原始标题');
         }
         return;
     }
@@ -410,7 +333,7 @@ function generateTitle() {
     const detectedRawLocation = extractRawLocation(input); 
     const detectedBatchInfo = extractBatchInfo(input);
 
-    const { coreText, fundingSuffix, isDefaultSupport } = processCoreText(input, detectedYear, detectedRawLocation);
+    const { coreText, initialVerb } = processCoreText(input, detectedYear, detectedRawLocation);
 
     const formattedLocation = formatLocationForOutput(detectedRawLocation);
     const yearPart = detectedYear || '2025'; 
@@ -423,54 +346,45 @@ function generateTitle() {
     originalCoreText = coreText;
     originalDateLocationSuffix = `（${yearPart}${locationAndBatchPart}）`;
 
-    let finalTitle;
-    if (isDefaultSupport) { 
-        isDefaultSupportUsed = true;
-        currentVerbIndex = 0; 
-        finalTitle = `${originalCoreText}${defaultFundingVerbs[currentVerbIndex]}${originalDateLocationSuffix}`;
-        convertButton.style.display = 'inline-block'; 
-    } else { 
-        isDefaultSupportUsed = false;
-        convertButton.style.display = 'none'; 
-        finalTitle = `${coreText}${fundingSuffix}${originalDateLocationSuffix}`;
-    }
+    // 根据检测到的 initialVerb 设置 currentVerbIndex 的起始位置
+    const initialIndex = ALL_CYCLABLE_VERBS.indexOf(initialVerb);
+    currentVerbIndex = initialIndex !== -1 ? initialIndex : 0; // 如果没找到，默认从 ALL_CYCLABLE_VERBS 的第一个开始
+
+    // 如果 initialVerb 为空（例如“市级引导区县科技发展专项资金项目”这类固定标题），则不添加资助方式
+    const finalVerb = initialVerb === "" ? "" : ALL_CYCLABLE_VERBS[currentVerbIndex];
+    const finalTitle = `${originalCoreText}${finalVerb}${originalDateLocationSuffix}`;
     
     outputTitleSpan.textContent = finalTitle;
 
     if (typeof showNotification === 'function') {
-        showNotification('标题生成成功！');
+        showNotification('标题生成成功');
     }
 }
 
 // --- Convert Button Logic ---
 function cycleFundingVerb() {
     const outputTitleSpan = document.getElementById('outputTitle');
-    const convertButton = document.getElementById('convertVerbButton');
 
-    if (!isDefaultSupportUsed) {
+    // 如果 currentVerbIndex 是空字符串对应的索引（即初始标题是固定类型），则不循环，或者跳过固定类型
+    if (originalCoreText === "市级引导区县科技发展专项资金项目") {
         if (typeof showNotification === 'function') {
-            showNotification('当前标题不适用资助方式切换功能。');
-        } else {
-            alert('当前标题不适用资助方式切换功能。');
+            showNotification('当前标题为固定格式无需切换');
         }
         return;
     }
 
-    currentVerbIndex++;
-    if (currentVerbIndex < defaultFundingVerbs.length) {
-        const newVerb = defaultFundingVerbs[currentVerbIndex];
-        outputTitleSpan.textContent = `${originalCoreText}${newVerb}${originalDateLocationSuffix}`;
-        if (typeof showNotification === 'function') {
-            showNotification(`资助方式已切换为：“${newVerb}”`);
-        }
-    } else {
-        currentVerbIndex = 0; 
-        if (typeof showNotification === 'function') {
-            showNotification('已尝试所有备选资助方式。如果您不满意，请手动复制结果并自行修改。');
+    // 循环资助方式，当到达数组末尾时，回到第一个
+    currentVerbIndex = (currentVerbIndex + 1) % ALL_CYCLABLE_VERBS.length;
+    
+    const newVerb = ALL_CYCLABLE_VERBS[currentVerbIndex];
+    outputTitleSpan.textContent = `${originalCoreText}${newVerb}${originalDateLocationSuffix}`;
+    
+    if (typeof showNotification === 'function') {
+        if (currentVerbIndex === 0) { // 如果循环回到了第一个
+            showNotification('已尝试所有资助方式如果无您想要的结果请复制结果并自行修改');
         } else {
-            alert('已尝试所有备选资助方式。如果您不满意，请手动复制结果并自行修改。');
+            showNotification('标题已重新生成');
         }
-        convertButton.style.display = 'none'; 
     }
 }
 
@@ -478,7 +392,6 @@ function cycleFundingVerb() {
 function clearInputSmartTitle() {
     const inputTextArea = document.getElementById('inputTitle');
     const outputTitleSpan = document.getElementById('outputTitle');
-    const convertButton = document.getElementById('convertVerbButton');
 
     if (inputTextArea) {
         inputTextArea.value = inputTextArea.getAttribute('placeholder') || '';
@@ -487,16 +400,12 @@ function clearInputSmartTitle() {
     if (outputTitleSpan) {
         outputTitleSpan.textContent = '等待输入...';
     }
-    if (convertButton) {
-        convertButton.style.display = 'none';
-    }
-    isDefaultSupportUsed = false;
-    currentVerbIndex = 0;
+    currentVerbIndex = 0; // 清空时重置索引
     originalCoreText = '';
     originalDateLocationSuffix = '';
     
     if (typeof showNotification === 'function') {
-        showNotification('内容已清空！');
+        showNotification('已清空');
     }
 }
 
@@ -504,40 +413,32 @@ function clearInputSmartTitle() {
 function copyOutputSmartTitle() {
     const outputTitleSpan = document.getElementById('outputTitle');
     if (!outputTitleSpan) {
-        console.error('Error: outputTitleSpan not found!'); 
+        console.error('Error outputTitleSpan not found'); 
         if (typeof showNotification === 'function') { 
-            showNotification('复制功能错误：输出元素未找到！');
+            showNotification('复制功能错误输出元素未找到');
         }
         return;
     }
 
     const textToCopy = outputTitleSpan.textContent;
 
-    if (!textToCopy || textToCopy === '等待输入...' || textToCopy === '请输入原始标题！' || textToCopy === '生成的标题将显示在这里...') {
+    if (!textToCopy || textToCopy === '等待输入...' || textToCopy === '请输入原始标题' || textToCopy === '生成的标题将显示在这里...') {
         if (typeof showNotification === 'function') {
-            showNotification('输出结果为空，无法复制！');
+            showNotification('输出结果为空无法复制');
         } else {
-            alert('输出结果为空，无法复制！');
+            alert('输出结果为空无法复制');
         }
         return;
     }
 
     navigator.clipboard.writeText(textToCopy).then(() => {
         if (typeof showNotification === 'function') {
-            showNotification('生成标题已复制！');
+            showNotification('复制成功');
         }
     }).catch(err => {
-        console.error('复制失败:', err); 
+        console.error('复制失败', err); 
         if (typeof showNotification === 'function') {
-            showNotification('复制失败，请手动复制！');
+            showNotification('复制失败请手动复制');
         }
     });
 }
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const convertButton = document.getElementById('convertVerbButton');
-    if (convertButton) { 
-        convertButton.style.display = 'none';
-    }
-});

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 关键检查：确保 Bootstrap JavaScript 已经加载并可用
         if (typeof bootstrap === 'undefined' || typeof bootstrap.Tab === 'undefined' || typeof bootstrap.Toast === 'undefined' || typeof bootstrap.Modal === 'undefined') {
             console.error("错误：Bootstrap JavaScript 未加载或初始化成功。请检查 './static/js/bootstrap.bundle.min.js' 路径是否正确且文件未损坏。");
-            showNotification("初始化失败：核心组件缺失。请检查浏览器控制台（F12）获取详情。");
+            showNotification("初始化失败核心组件缺失请检查浏览器控制台F12获取详情");
             return; // 如果 Bootstrap 未正确加载，则停止进一步的脚本执行
         }
         
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var firstTab = new bootstrap.Tab(firstTabEl)
             firstTab.show()
         } else {
-            console.warn('警告：未找到第一个导航Tab按钮，可能导致页面初始化异常。');
+            console.warn('警告未找到第一个导航Tab按钮可能导致页面初始化异常');
         }
 
         // 初始化所有 Bootstrap Tooltip
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     } catch (e) {
         console.error("JavaScript初始化过程中发生未捕获的错误：", e);
-        showNotification("页面初始化检测到问题，请查看浏览器控制台（F12）获取详情。");
+        showNotification("页面初始化检测到问题请查看浏览器控制台F12获取详情");
     }
 });
 
@@ -55,12 +55,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function showNotification(message) {
     const toastLiveExample = document.getElementById('liveToast');
     if (!toastLiveExample) {
-        console.error("错误：未找到 Toast 元素！请检查 index.html 中是否存在 id为 'liveToast' 的元素。"); 
+        console.error("错误未找到Toast元素请检查indexhtml中是否存在id为'liveToast'的元素"); 
         return;
     }
     const toastMessageElement = document.getElementById('toast-message');
     if (!toastMessageElement) {
-        console.error("错误：未找到 Toast 消息元素！请检查 index.html 中是否存在 id为 'toast-message' 的元素。"); 
+        console.error("错误未找到Toast消息元素请检查indexhtml中是否存在id为'toast-message'的元素"); 
         return;
     }
     toastMessageElement.textContent = message;
@@ -86,7 +86,7 @@ function showKeywordAlertModal(message) {
     if (modalBody) {
         modalBody.innerHTML = message; // 使用 innerHTML 允许消息中包含 HTML（如 <br>）
     } else {
-        console.error("错误：未找到关键字模态对话框的 body 元素！请检查 index.html 中是否存在 id为 'keywordAlertModalBody' 的元素。");
+        console.error("错误未找到关键字模态对话框的body元素请检查indexhtml中是否存在id为'keywordAlertModalBody'的元素");
         return;
     }
     // 确保每次都创建一个新的 Modal 实例
@@ -107,13 +107,13 @@ function clearInput(tabId) {
         inputTextarea.value = placeholder;
         inputTextarea.classList.add('placeholder-active');
     } else {
-        console.warn(`清空操作：未找到 id 为 input_text_${tabId} 的输入框`);
+        console.warn(`清空操作未找到id为input_text_${tabId}的输入框`);
     }
 
     if (outputTextarea) {
         outputTextarea.value = '';
     } else {
-        console.warn(`清空操作：未找到 id 为 output_text_${tabId} 的输出框`);
+        console.warn(`清空操作未找到id为output_text_${tabId}的输出框`);
     }
 
     showNotification('已清空');
@@ -123,34 +123,34 @@ function clearInput(tabId) {
 async function pasteInput(tabId) {
     const inputTextarea = document.getElementById(`input_text_${tabId}`);
     if (!inputTextarea) {
-        console.error(`粘贴失败：未找到 id 为 input_text_${tabId} 的输入框`);
-        showNotification('粘贴失败：目标输入框不存在。');
+        console.error(`粘贴失败未找到id为input_text_${tabId}的输入框`);
+        showNotification('粘贴失败目标输入框不存在');
         return;
     }
     try {
         const text = await navigator.clipboard.readText();
         inputTextarea.value = text;
         inputTextarea.classList.remove('placeholder-active'); // 移除placeholder样式
-        showNotification('粘贴成功！');
+        showNotification('粘贴成功');
     } catch (err) {
-        console.error('粘贴失败:', err);
+        console.error('粘贴失败', err);
         if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
-             showNotification('粘贴失败：浏览器安全设置阻止了自动粘贴。请手动 Ctrl+V / Cmd+V 粘贴。');
+             showNotification('粘贴失败浏览器安全设置阻止了自动粘贴请手动CtrlVCmdV粘贴');
         } else {
-            showNotification('粘贴失败，请手动粘贴。');
+            showNotification('粘贴失败请手动粘贴');
         }
     }
 }
 
 
-// 复制输出结果 (通用功能，保留在核心文件) - 关键字检查逻辑在此处触发
+// 复制输出结果 (通用功能) - 关键字检查逻辑在此处触发
 function copyOutput(tabId) {
     const inputTextarea = document.getElementById(`input_text_${tabId}`);
     const outputTextarea = document.getElementById(`output_text_${tabId}`);
     
     if (!outputTextarea) {
-        console.error(`复制失败：未找到 id 为 output_text_${tabId} 的输出框`);
-        showNotification('复制失败：目标输出框不存在。');
+        console.error(`复制失败未找到id为output_text_${tabId}的输出框`);
+        showNotification('复制失败目标输出框不存在');
         return;
     }
 
@@ -165,7 +165,7 @@ function copyOutput(tabId) {
     }
     
     if (outputTextarea.value.trim() === '') {
-        showNotification('输出内容为空，无法复制。');
+        showNotification('输出内容为空无法复制');
         return;
     }
     outputTextarea.select();
@@ -173,10 +173,10 @@ function copyOutput(tabId) {
 
     try {
         document.execCommand('copy');
-        showNotification('已复制到剪贴板！');
+        showNotification('复制成功');
     } catch (err) {
-        console.error('复制失败:', err);
-        showNotification('复制失败，请手动复制。');
+        console.error('复制失败', err);
+        showNotification('复制失败请手动复制');
     } finally {
         if (window.getSelection) {
             window.getSelection().removeAllRanges();
@@ -289,7 +289,7 @@ function checkAndAlertKeywords(text) {
 
     if (foundMessages.length > 0) {
         const uniqueMessages = [...new Set(foundMessages)];
-        const alertMessage = "您提供的文本中<br>" + uniqueMessages.join("<br>") + "<br>，请留意做项目时是否需要修改。";
+        const alertMessage = "您提供的文本中<br>" + uniqueMessages.join("<br>") + "<br>请留意做项目时是否需要修改";
         showKeywordAlertModal(alertMessage); 
         return true; 
     }
@@ -440,7 +440,7 @@ function process_numbered_list(text, number_format_type, is_two_level_requested 
                     result_lines.push(`${circled_num}${final_content_with_punctuation}`);
                     current_num_level1 += 1;
                 } else { 
-                    console.warn(`Unexpected number_format_type or unhandled path in single-level mode: ${number_format_type}. Line ${i+1} added as plain: ${original_line}`);
+                    console.warn(`Unexpected number_format_type or unhandled path in single-level mode ${number_format_type} Line ${i+1} added as plain ${original_line}`);
                     result_lines.push(processed_line_content_compacted);
                 }
             }
@@ -458,8 +458,8 @@ function processText(tabId) {
     const outputTextarea = document.getElementById(`output_text_${tabId}`);
 
     if (!inputTextarea || !outputTextarea) {
-        console.error(`处理失败：未找到 id 为 input_text_${tabId} 或 output_text_${tabId} 的文本区域。`);
-        showNotification('处理失败：输入/输出框缺失。');
+        console.error(`处理失败未找到id为input_text_${tabId}或output_text_${tabId}的文本区域`);
+        showNotification('处理失败输入输出框缺失');
         return;
     }
 
@@ -468,7 +468,7 @@ function processText(tabId) {
     if (inputTextarea.classList.contains('placeholder-active')) {
         inputText = ''; 
     } else if (!inputText.trim()) {
-        showNotification('输入内容为空，无需转换。');
+        showNotification('输入内容为空无需转换');
         outputTextarea.value = ''; 
         return;
     }
@@ -480,8 +480,8 @@ function processText(tabId) {
                 if (typeof convert_level1_numbers === 'function') {
                     result = convert_level1_numbers(inputText);
                 } else {
-                    console.error("Error: convert_level1_numbers function not loaded.");
-                    showNotification("功能未加载：一级序号");
+                    console.error("Error convert_level1_numbers function not loaded");
+                    showNotification("功能未加载一级序号");
                     return;
                 }
                 break;
@@ -489,8 +489,8 @@ function processText(tabId) {
                 if (typeof convert_level2_numbers === 'function') {
                     result = convert_level2_numbers(inputText);
                 } else {
-                    console.error("Error: convert_level2_numbers function not loaded.");
-                    showNotification("功能未加载：二级序号");
+                    console.error("Error convert_level2_numbers function not loaded");
+                    showNotification("功能未加载二级序号");
                     return;
                 }
                 break;
@@ -498,8 +498,8 @@ function processText(tabId) {
                 if (typeof convert_two_level_numbers === 'function') {
                     result = convert_two_level_numbers(inputText);
                 } else {
-                    console.error("Error: convert_two_level_numbers function not loaded.");
-                    showNotification("功能未加载：两级序号");
+                    console.error("Error convert_two_level_numbers function not loaded");
+                    showNotification("功能未加载两级序号");
                     return;
                 }
                 break;
@@ -507,8 +507,8 @@ function processText(tabId) {
                 if (typeof delete_numbers === 'function') {
                     result = delete_numbers(inputText);
                 } else {
-                    console.error("Error: delete_numbers function not loaded.");
-                    showNotification("功能未加载：删除序号");
+                    console.error("Error delete_numbers function not loaded");
+                    showNotification("功能未加载删除序号");
                     return;
                 }
                 break;
@@ -516,8 +516,8 @@ function processText(tabId) {
                 if (typeof add_br_tags === 'function') {
                     result = add_br_tags(inputText);
                 } else {
-                    console.error("Error: add_br_tags function not loaded.");
-                    showNotification("功能未加载：加换行符");
+                    console.error("Error add_br_tags function not loaded");
+                    showNotification("功能未加载加换行符");
                     return;
                 }
                 break;
@@ -525,20 +525,20 @@ function processText(tabId) {
                 if (typeof smart_process_text === 'function') {
                     result = smart_process_text(inputText);
                 } else {
-                    console.error("Error: smart_process_text function not loaded.");
-                    showNotification("功能未加载：智能处理");
+                    console.error("Error smart_process_text function not loaded");
+                    showNotification("功能未加载智能处理");
                     return;
                 }
                 break;
             default:
-                result = '未知功能。';
+                result = '未知功能';
                 showNotification(result);
                 return;
         }
         outputTextarea.value = result;
-        showNotification('转换成功！'); 
+        showNotification('转换成功'); 
     } catch (error) {
-        console.error('处理失败:', error); 
-        showNotification('处理失败，请检查输入格式或联系开发者。详情请查看控制台。');
+        console.error('处理失败', error); 
+        showNotification('处理失败请检查输入格式或联系开发者详情请查看控制台');
     }
 }
