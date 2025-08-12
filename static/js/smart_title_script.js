@@ -1,6 +1,5 @@
 // smart_title_script.js - 智能标题生成功能
 
-// --- Global Variables ---
 // defaultFundingVerbs 是原始的通用可切换列表
 const defaultFundingVerbs = ['支持', '奖励', '扶持', '征集', '入库', '奖补', '遴选', '补贴', '评选','认定', '贴息支持', '补助', '资助'];
 // 特定识别关键词对应的资助方式，这些是优先匹配的初始资助方式
@@ -33,52 +32,54 @@ function extractYear(text) {
  * 提取原始地点
  */
 function extractRawLocation(text) {
-    const yearLocationMatch = text.match(/\d{4}年([\u4e00-\u9fa5]+?(?:区|县|镇|市|省|经济技术开发区|高新技术产业开发区|开发区|科技园))/);
-    if (yearLocationMatch) {
-        return yearLocationMatch[1];
-    }
-
-    const splitByAbout = text.split(/(?:局|厅|委|办|府|管委会|委员会|中心)\s*关于|关于/);
-    let effectiveText = splitByAbout.length > 1 ? splitByAbout[0].trim() : text.trim(); 
-    
-    const multiLevelCityDistrictMatch = effectiveText.match(/([\u4e00-\u9fa5]+市)([\u4e00-\u9fa5]+(?:区|县|镇))/);
-    if (multiLevelCityDistrictMatch) {
-        return multiLevelCityDistrictMatch[2];
-    }
-    
-    const districtTownMatch = effectiveText.match(/([\u4e00-\u9fa5]+(?:区|镇))/);
-    if (districtTownMatch) {
-        return districtTownMatch[1];
-    }
-
-    const countyMatch = effectiveText.match(/([\u4e00-\u9fa5]+县)/);
-    if (countyMatch) {
-        return countyMatch[1];
-    }
-
-    const devZoneMatch = effectiveText.match(/([\u4e00-\u9fa5]+?(?:经济技术开发区|高新技术产业开发区|开发区|科技园))/);
-    if (devZoneMatch) {
-        return devZoneMatch[1];
-    }
-
     const directControlledCities = ['北京市', '上海市', '天津市', '重庆市'];
+
+    // 优先级1: 优先处理直辖市及其可能携带的区/县/镇后缀
     for (const city of directControlledCities) {
-        if (effectiveText.includes(city)) {
-            return city;
+        if (text.includes(city)) {
+            // 尝试匹配“直辖市[区县镇]”，例如“重庆市北碚区”
+            const cityDistrictTownMatch = text.match(new RegExp(`${city}([\u4e00-\u9fa5]+(?:区|县|镇))`));
+            if (cityDistrictTownMatch) {
+                return cityDistrictTownMatch[1]; // 返回区/县/镇，例如“北碚区”
+            }
+            // 如果仅匹配到直辖市本身，例如“重庆市”
+            return city; // 返回完整的直辖市名称
         }
     }
 
-    const cityMatch = effectiveText.match(/([\u4e00-\u9fa5]+?市)/);
+    // 优先级2: 尝试匹配“市+区/县/镇”组合，用于非直辖市的省市县结构，例如“广州市荔湾区”
+    const multiLevelCityDistrictMatch = text.match(/([\u4e00-\u9fa5]+市)([\u4e00-\u9fa5]+(?:区|县|镇))/);
+    if (multiLevelCityDistrictMatch) {
+        return multiLevelCityDistrictMatch[2]; // 返回最内层的区/县/镇，例如“荔湾区”
+    }
+
+    // 优先级3: 尝试匹配“年份 + 完整的行政区划”（包括市/省/区/县/镇/开发区）
+    // 这里的 [\u4e00-\u9fa5]+ 是贪婪匹配，且行政区划后缀的顺序从具体到一般，
+    // 确保能捕获到最长的行政区划，例如 "重庆市" 或 "四川省"
+    const yearLocationMatch = text.match(/\d{4}(?:年|年度)([\u4e00-\u9fa5]+(?:经济技术开发区|高新技术产业开发区|开发区|科技园|区|县|镇|市|省))/);
+    if (yearLocationMatch) {
+        return yearLocationMatch[1]; // 返回匹配到的地点部分，例如“重庆市”或“四川省”
+    }
+    
+    // 优先级4: 尝试匹配独立的区/镇/县/开发区（不依赖于年份或市级前缀）
+    const districtTownDevMatch = text.match(/([\u4e00-\u9fa5]+(?:区|镇|县|经济技术开发区|高新技术产业开发区|开发区|科技园))/);
+    if (districtTownDevMatch) {
+        return districtTownDevMatch[1];
+    }
+
+    // 优先级5: 尝试匹配独立的市
+    const cityMatch = text.match(/([\u4e00-\u9fa5]+?市)/);
     if (cityMatch) {
         return cityMatch[1];
     }
 
-    const provinceMatch = effectiveText.match(/([\u4e00-\u9fa5]+?省)/);
+    // 优先级6: 尝试匹配独立的省
+    const provinceMatch = text.match(/([\u4e00-\u9fa5]+?省)/);
     if (provinceMatch) {
         return provinceMatch[1];
     }
 
-    return null;
+    return null; // 未找到任何匹配的地点
 }
 
 /**
@@ -89,25 +90,26 @@ function formatLocationForOutput(rawLocation) {
 
     const directControlledCities = ['北京市', '上海市', '天津市', '重庆市'];
 
-    for (const city of directControlledCities) {
-        if (rawLocation.startsWith(city) && (rawLocation.endsWith('区') || rawLocation.endsWith('县') || rawLocation.endsWith('镇'))) {
-            return rawLocation.substring(city.length); 
-        }
-    }
-
-    if (rawLocation.endsWith('区') || rawLocation.endsWith('镇') || rawLocation.endsWith('县') || rawLocation.includes('开发区') || rawLocation.includes('科技园') || rawLocation.includes('高新区')) {
-        return rawLocation;
-    }
+    // 规则1：如果原始地点就是直辖市本身，则直接返回 (因为 extractRawLocation 已经处理了直辖市带区的情况)
     if (directControlledCities.includes(rawLocation)) {
         return rawLocation;
     }
+
+    // 规则2：如果原始地点是区/镇/县/开发区等，则直接返回
+    if (rawLocation.endsWith('区') || rawLocation.endsWith('镇') || rawLocation.endsWith('县') || rawLocation.includes('开发区') || rawLocation.includes('科技园') || rawLocation.includes('高新区')) {
+        return rawLocation;
+    }
+    
+    // 规则3：如果原始地点以“市”结尾 (且不是直辖市)，返回“市级”
     if (rawLocation.endsWith('市')) {
         return '市级';
     }
+    
+    // 规则4：如果原始地点以“省”结尾，返回“省级”
     if (rawLocation.endsWith('省')) {
         return '省级';
     }
-    return ''; 
+    return ''; // 其他情况返回空字符串
 }
 
 /**
@@ -144,6 +146,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
         for (const marker of contentStartMarkers) {
             const index = text.indexOf(marker);
             if (index !== -1) {
+                // 确保标记在行首或前一个字符为空白/特定机构结尾，避免误删
                 if (index === 0 || (text[index - 1] && /\s|[局厅委办府会心]\s*$/.test(text.substring(0, index)))) { 
                     if (earliestMarkerIndex === -1 || index < earliestMarkerIndex) {
                         earliestMarkerIndex = index;
@@ -163,12 +166,12 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
         let removedSomething;
         do {
             removedSomething = false;
-            leadingPrefixes.sort((a, b) => b.length - a.length); 
+            leadingPrefixes.sort((a, b) => b.length - a.length); // 确保长词优先匹配
             for (const prefix of leadingPrefixes) {
                 if (text.startsWith(prefix)) {
                     text = text.substring(prefix.length).trim();
                     removedSomething = true;
-                    break; 
+                    break; // 找到一个匹配就跳出内层循环，重新检查
                 }
             }
         } while (removedSomething);
@@ -189,15 +192,17 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
 
 
     let mainPart = text; 
+    // 定义所有可能用于截断核心文本的结尾标记，从长到短排序
     const allClosingMarkersForTruncation = [
         '政策的通知', '工作的通知', '的通知', '的通告', '的方案', '申报指南', '实施方案', 
         '遴选工作', '申报工作', '的公告', '申请指南' 
     ];
     allClosingMarkersForTruncation.sort((a,b) => b.length - a.length); 
 
-    let earliestClosingMarkerIndex = text.length; 
+    let earliestClosingMarkerIndex = text.length; // 初始化为文本长度
     let matchedMarkerForTruncation = null;
 
+    // 遍历所有结尾标记，找到最早出现的那个
     for (const marker of allClosingMarkersForTruncation) {
         const index = text.indexOf(marker); 
         if (index !== -1 && index < earliestClosingMarkerIndex) {
@@ -206,17 +211,20 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
         }
     }
 
+    // 如果找到了有效的结尾标记，则截断文本
     if (matchedMarkerForTruncation) {
         mainPart = text.substring(0, earliestClosingMarkerIndex).trim();
     } else {
-        mainPart = text; 
+        mainPart = text; // 否则，使用整个文本
     }
     
+    // 移除年份相关的部分
     if (detectedYear) {
         mainPart = mainPart.replace(new RegExp(`${detectedYear}(?:年|年度)?`, 'g'), '').trim(); 
     }
     mainPart = mainPart.replace(/(?:年|度)\s*/g, '').trim();
 
+    // 移除地点相关的部分
     if (detectedRawLocation) { 
         let locationPattern = detectedRawLocation;
         let shortLocationName = locationPattern; 
@@ -224,12 +232,13 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
             shortLocationName = locationPattern.substring(0, locationPattern.length - 1); 
         }
         
+        // 构建正则表达式，优先匹配长名称
         const regexParts = [
             locationPattern, 
             shortLocationName 
         ].filter(s => s && s.length > 0) 
-         .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) 
-         .sort((a,b) => b.length - a.length) 
+         .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // 转义特殊字符
+         .sort((a,b) => b.length - a.length) // 确保长匹配优先
          .join('|'); 
 
         if (regexParts) {
@@ -237,6 +246,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
         }
     }
     
+    // 移除批次信息
     const batchInfo = extractBatchInfo(originalInput);
     if (batchInfo) {
         const batchRegexPattern = `[\\s\\(（]*${batchInfo}[\\s\\)）]*`;
@@ -244,6 +254,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
     }
     mainPart = mainPart.replace(/[\(（]\s*[\)）]/g, '').trim();
 
+    // 移除行首可能存在的地点名称，除非它属于“市级”、“区级”、“省级”等特殊关键词
     let shouldSkipLeadingLocationCleanup = false;
     const levelKeywordsToPreserveAtStart = ['市级', '区级', '省级'];
     for (const keyword of levelKeywordsToPreserveAtStart) {
@@ -260,6 +271,7 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
         }
     }
 
+    // 确保以“项目”结尾
     const projectKeyword = '项目';
     if (mainPart.includes(projectKeyword)) {
         let firstProjectIndex = mainPart.indexOf(projectKeyword);
@@ -271,14 +283,15 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
     const allWordsToCleanFromMainPart = new Set([
         ...ALL_CYCLABLE_VERBS,        
         '申报工作', '遴选工作', '评选工作', '兑现申请', '申请工作', '实施工作', '开展工作', '进行工作', '举办工作',
-        '入选项目库', '入选库', '资金', '若干政策申报' 
+        '入选项目库', '入选库', '资金', '若干政策申报',
+        '开展' // 新增的“开展”关键字
     ]);
     const recognitionKeywords = ['基地', '合作区','园区', '车间', '研究中心', '实验室', '工厂', '标杆', '孵化器', '载体', '企业', '品牌', '技能大师', '工作室', '工作站', '案例', '家庭农场', '合作社', '技能大师工作室', '概念中心','机构']; 
 
     let removedRedundantPhrase;
     do {
         removedRedundantPhrase = false;
-        const sortedWordsToClean = Array.from(allWordsToCleanFromMainPart).sort((a, b) => b.length - a.length);
+        const sortedWordsToClean = Array.from(allWordsToCleanFromMainPart).sort((a, b) => b.length - a.length); // 确保长词优先
         
         for (const word of sortedWordsToClean) {
             let shouldPreserveWord = false;
@@ -290,20 +303,20 @@ function processCoreText(originalInput, detectedYear, detectedRawLocation) {
                 }
             }
             if (shouldPreserveWord) {
-                continue; 
+                continue; // 跳过此词的删除
             }
 
-            const regex = new RegExp(word, 'g'); 
+            const regex = new RegExp(word, 'g'); // 全局匹配并删除
             const prevLength = mainPart.length;
             mainPart = mainPart.replace(regex, '').trim();
             if (mainPart.length < prevLength) {
-                removedRedundantPhrase = true;
+                removedRedundantPhrase = true; // 发生了删除，需要再次循环检查
             }
         }
     } while (removedRedundantPhrase);
 
-    mainPart = mainPart.replace(/[\(（]\s*[\)）]/g, '').trim(); 
-    mainPart = mainPart.replace(/\s+/g, ' ').trim(); 
+    mainPart = mainPart.replace(/[\(（]\s*[\)）]/g, '').trim(); // 移除空括号
+    mainPart = mainPart.replace(/\s+/g, ' ').trim(); // 多余空格替换为单个空格
 
     return { coreText: mainPart, initialVerb: initialVerb };
 }
@@ -316,13 +329,14 @@ function generateTitle() {
     
     let input = '';
     if (inputTextArea && inputTextArea.classList.contains('placeholder-active')) {
-        input = ''; 
+        input = ''; // 如果是placeholder状态，则视为空输入
     } else if (inputTextArea) {
         input = inputTextArea.value.trim();
     }
     
     if (!input) {
         outputTitleSpan.textContent = '请输入原始标题';
+        // 显示一个短暂的提示
         if (typeof showNotification === 'function') {
             showNotification('请输入原始标题');
         }
@@ -336,7 +350,7 @@ function generateTitle() {
     const { coreText, initialVerb } = processCoreText(input, detectedYear, detectedRawLocation);
 
     const formattedLocation = formatLocationForOutput(detectedRawLocation);
-    const yearPart = detectedYear || '2025'; 
+    const yearPart = detectedYear || '2025'; // 如果没有检测到年份，默认2025
 
     let locationAndBatchPart = formattedLocation;
     if (detectedBatchInfo) {
@@ -356,6 +370,7 @@ function generateTitle() {
     
     outputTitleSpan.textContent = finalTitle;
 
+    // 显示一个短暂的提示
     if (typeof showNotification === 'function') {
         showNotification('标题生成成功');
     }
@@ -373,16 +388,25 @@ function cycleFundingVerb() {
         return;
     }
 
-    // 循环资助方式，当到达数组末尾时，回到第一个
-    currentVerbIndex = (currentVerbIndex + 1) % ALL_CYCLABLE_VERBS.length;
+    // 计算下一个动词的索引
+    const nextVerbIndex = (currentVerbIndex + 1) % ALL_CYCLABLE_VERBS.length;
+    
+    currentVerbIndex = nextVerbIndex; // 更新当前索引
     
     const newVerb = ALL_CYCLABLE_VERBS[currentVerbIndex];
     outputTitleSpan.textContent = `${originalCoreText}${newVerb}${originalDateLocationSuffix}`;
     
     if (typeof showNotification === 'function') {
-        if (currentVerbIndex === 0) { // 如果循环回到了第一个
-            showNotification('已尝试所有资助方式如果无您想要的结果请复制结果并自行修改');
+        if (currentVerbIndex === 0) { // 如果循环回到了第一个，表示一轮结束
+            // 弹出需要用户确认的模态框
+            if (typeof showKeywordAlertModal === 'function') {
+                showKeywordAlertModal('已尝试所有资助方式，如果无您想要的结果，请复制结果并自行修改。');
+            } else {
+                // 作为备用方案，如果模态框函数不可用，则还是使用普通通知
+                showNotification('已尝试所有资助方式，如果无您想要的结果，请复制结果并自行修改。');
+            }
         } else {
+            // 其他情况，显示短暂的 Toast 提示
             showNotification('标题已重新生成');
         }
     }
@@ -413,9 +437,9 @@ function clearInputSmartTitle() {
 function copyOutputSmartTitle() {
     const outputTitleSpan = document.getElementById('outputTitle');
     if (!outputTitleSpan) {
-        console.error('Error outputTitleSpan not found'); 
+        console.error('Error: outputTitleSpan not found'); // 错误日志
         if (typeof showNotification === 'function') { 
-            showNotification('复制功能错误输出元素未找到');
+            showNotification('复制功能错误：输出元素未找到'); // 用户提示
         }
         return;
     }
@@ -424,21 +448,39 @@ function copyOutputSmartTitle() {
 
     if (!textToCopy || textToCopy === '等待输入...' || textToCopy === '请输入原始标题' || textToCopy === '生成的标题将显示在这里...') {
         if (typeof showNotification === 'function') {
-            showNotification('输出结果为空无法复制');
+            showNotification('输出结果为空，无法复制');
         } else {
-            alert('输出结果为空无法复制');
+            alert('输出结果为空，无法复制'); // 备用原生alert
         }
         return;
     }
 
+    // 使用 Clipboard API 复制文本
     navigator.clipboard.writeText(textToCopy).then(() => {
         if (typeof showNotification === 'function') {
             showNotification('复制成功'); // 统一提示语
         }
     }).catch(err => {
-        console.error('复制失败', err); 
-        if (typeof showNotification === 'function') {
-            showNotification('复制失败请手动复制');
+        console.error('复制失败', err); // 错误日志
+        // 尝试使用旧的 execCommand 方法作为备用
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.style.position = 'fixed'; // 避免页面滚动
+        textarea.style.opacity = '0'; // 隐藏
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            if (typeof showNotification === 'function') {
+                showNotification('复制成功 (备用方法)');
+            }
+        } catch (execErr) {
+            console.error('execCommand 复制失败', execErr); // 备用方法失败日志
+            if (typeof showNotification === 'function') {
+                showNotification('复制失败，请手动复制'); // 最终失败提示
+            }
+        } finally {
+            document.body.removeChild(textarea); // 移除临时textarea
         }
     });
 }
