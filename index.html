@@ -11,6 +11,7 @@
 </head>
 <body>
     <div class="container-fluid h-100 d-flex flex-column">
+        <!-- 顶部状态栏 -->
         <header class="row bg-light p-2 border-bottom">
             <div class="col-12 text-center">
                 <span id="status-message" class="text-dark">智文助手-高效做项目工具</span>
@@ -18,26 +19,30 @@
         </header>
 
         <div class="row flex-grow-1">
+            <!-- 导航栏 -->
             <nav class="col-md-2 bg-light p-3 border-end d-flex flex-column">
                 <h5 class="mb-3">功能列表</h5>
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-                    <button class="nav-link active" id="v-pills-level1-tab" data-bs-toggle="pill" data-bs-target="#v-pills-level1" type="button" role="tab" data-func-id="1">一级序号</button>
-                    <button class="nav-link" id="v-pills-level2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-level2" type="button" role="tab" data-func-id="2">二级序号</button>
-                    <button class="nav-link" id="v-pills-twolevel-tab" data-bs-toggle="pill" data-bs-target="#v-pills-twolevel" type="button" role="tab" data-func-id="3">两级序号</button>
-                    <button class="nav-link" id="v-pills-delete-tab" data-bs-toggle="pill" data-bs-target="#v-pills-delete" type="button" role="tab" data-func-id="4">删除序号</button>
-                    <button class="nav-link" id="v-pills-addbr-tab" data-bs-toggle="pill" data-bs-target="#v-pills-addbr" type="button" role="tab" data-func-id="5">加换行符</button>
-                    <button class="nav-link" id="v-pills-smart-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smart" type="button" role="tab" data-func-id="11">智能处理</button>
-                    <button class="nav-link" id="v-pills-quickcopy-tab" data-bs-toggle="pill" data-bs-target="#v-pills-quickcopy" type="button" role="tab" data-func-id="6">快捷复制</button>
-                    <button class="nav-link" id="v-pills-smart-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smart-title" type="button" role="tab" data-func-id="12">生成标题</button>
+                    <button class="nav-link active" id="v-pills-level1-tab" data-bs-toggle="pill" data-bs-target="#v-pills-level1" type="button" role="tab">一级序号</button>
+                    <button class="nav-link" id="v-pills-level2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-level2" type="button" role="tab">二级序号</button>
+                    <button class="nav-link" id="v-pills-twolevel-tab" data-bs-toggle="pill" data-bs-target="#v-pills-twolevel" type="button" role="tab">两级序号</button>
+                    <button class="nav-link" id="v-pills-delete-tab" data-bs-toggle="pill" data-bs-target="#v-pills-delete" type="button" role="tab">删除序号</button>
+                    <button class="nav-link" id="v-pills-addbr-tab" data-bs-toggle="pill" data-bs-target="#v-pills-addbr" type="button" role="tab">加换行符</button>
+                    <button class="nav-link" id="v-pills-smart-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smart" type="button" role="tab">智能处理</button>
+                    <button class="nav-link" id="v-pills-quickcopy-tab" data-bs-toggle="pill" data-bs-target="#v-pills-quickcopy" type="button" role="tab">快捷复制</button>
+                    <button class="nav-link" id="v-pills-smart-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-smart-title" type="button" role="tab">生成标题</button>
                 </div>
             </nav>
 
+            <!-- 内容区域 -->
             <main class="col-md-10 p-3 d-flex flex-column">
                 <div class="tab-content flex-grow-1" id="v-pills-tabContent">
+                    <!-- 每一个 Tab 里的 processText('tab名') 必须与 tab-pane 的 id 后缀对应 -->
+                    
                     <!-- 一级序号 -->
                     <div class="tab-pane fade show active" id="v-pills-level1" role="tabpanel">
                         <div class="mb-3">
-                            <label for="input_text_level1" class="form-label">请输入或粘贴需要修改的文本</label>
+                            <label for="input_text_level1" class="form-label">请输入或粘贴文本</label>
                             <textarea class="form-control placeholder-text" id="input_text_level1" rows="3" placeholder="将您提供的文本一键转换为（1）（2）…格式"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
@@ -48,101 +53,125 @@
                             <label for="output_text_level1" class="form-label">输出结果</label>
                             <textarea class="form-control" id="output_text_level1" rows="3" readonly></textarea>
                         </div>
-                        <div class="d-flex justify-content-center"><button type="button" class="btn btn-success" onclick="copyOutput('level1')">复制</button></div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success" onclick="copyOutput('level1')">复制</button>
+                        </div>
                     </div>
 
                     <!-- 二级序号 -->
                     <div class="tab-pane fade" id="v-pills-level2" role="tabpanel">
                         <div class="mb-3">
-                            <label for="input_text_level2" class="form-label">请输入或粘贴需要修改的文本</label>
+                            <label for="input_text_level2" class="form-label">请输入或粘贴文本</label>
                             <textarea class="form-control placeholder-text" id="input_text_level2" rows="3" placeholder="将您提供的文本一键转换为①②③…格式"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
                             <button type="button" class="btn btn-secondary me-2" onclick="clearInput('level2')">清空</button>
                             <button type="button" class="btn btn-primary me-2" onclick="processText('level2')">转换</button>
                         </div>
-                        <div class="mb-3"><textarea class="form-control" id="output_text_level2" rows="3" readonly></textarea></div>
-                        <div class="d-flex justify-content-center"><button type="button" class="btn btn-success" onclick="copyOutput('level2')">复制</button></div>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="output_text_level2" rows="3" readonly></textarea>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success" onclick="copyOutput('level2')">复制</button>
+                        </div>
                     </div>
 
-                    <!-- 两级序号 -->
+                    <!-- 两级序号 - 这里原本 input_text_twolevel 没写对，已修正 -->
                     <div class="tab-pane fade" id="v-pills-twolevel" role="tabpanel">
                         <div class="mb-3">
-                            <label for="input_text_twolevel" class="form-label">请输入或粘贴文本<span class="text-info" data-bs-toggle="tooltip" title="需先分别转换一二级序号">◎</span></label>
-                            <textarea class="form-control placeholder-text" id="input_text_twolevel" rows="3" placeholder="一级转换为（1）（2），二级转换为①②"></textarea>
+                            <label for="input_text_twolevel" class="form-label">请输入文本</label>
+                            <textarea class="form-control placeholder-text" id="input_text_twolevel" rows="3" placeholder="一级序号（1），二级序号①"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
                             <button type="button" class="btn btn-secondary me-2" onclick="clearInput('twolevel')">清空</button>
                             <button type="button" class="btn btn-primary me-2" onclick="processText('twolevel')">转换</button>
                         </div>
-                        <div class="mb-3"><textarea class="form-control" id="output_text_twolevel" rows="3" readonly></textarea></div>
-                        <div class="d-flex justify-content-center"><button type="button" class="btn btn-success" onclick="copyOutput('twolevel')">复制</button></div>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="output_text_twolevel" rows="3" readonly></textarea>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success" onclick="copyOutput('twolevel')">复制</button>
+                        </div>
                     </div>
 
                     <!-- 删除序号 -->
                     <div class="tab-pane fade" id="v-pills-delete" role="tabpanel">
                         <div class="mb-3">
                             <label for="input_text_delete" class="form-label">请输入文本</label>
-                            <textarea class="form-control placeholder-text" id="input_text_delete" rows="3" placeholder="去掉序号，空一行"></textarea>
+                            <textarea class="form-control placeholder-text" id="input_text_delete" rows="3" placeholder="去掉序号，并空一行"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
                             <button type="button" class="btn btn-secondary me-2" onclick="clearInput('delete')">清空</button>
                             <button type="button" class="btn btn-primary me-2" onclick="processText('delete')">转换</button>
                         </div>
-                        <div class="mb-3"><textarea class="form-control" id="output_text_delete" rows="3" readonly></textarea></div>
-                        <div class="d-flex justify-content-center"><button type="button" class="btn btn-success" onclick="copyOutput('delete')">复制</button></div>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="output_text_delete" rows="3" readonly></textarea>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success" onclick="copyOutput('delete')">复制</button>
+                        </div>
                     </div>
 
                     <!-- 加换行符 -->
                     <div class="tab-pane fade" id="v-pills-addbr" role="tabpanel">
                         <div class="mb-3">
                             <label for="input_text_addbr" class="form-label">请输入文本</label>
-                            <textarea class="form-control placeholder-text" id="input_text_addbr" rows="3" placeholder="句末加上<br>标签"></textarea>
+                            <textarea class="form-control placeholder-text" id="input_text_addbr" rows="3" placeholder="句末加上 <br>"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
                             <button type="button" class="btn btn-secondary me-2" onclick="clearInput('addbr')">清空</button>
                             <button type="button" class="btn btn-primary me-2" onclick="processText('addbr')">转换</button>
                         </div>
-                        <div class="mb-3"><textarea class="form-control" id="output_text_addbr" rows="3" readonly></textarea></div>
-                        <div class="d-flex justify-content-center"><button type="button" class="btn btn-success" onclick="copyOutput('addbr')">复制</button></div>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="output_text_addbr" rows="3" readonly></textarea>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success" onclick="copyOutput('addbr')">复制</button>
+                        </div>
                     </div>
 
                     <!-- 智能处理 -->
                     <div class="tab-pane fade" id="v-pills-smart" role="tabpanel">
                         <div class="mb-3">
                             <label for="input_text_smart" class="form-label">请输入文本</label>
-                            <textarea class="form-control placeholder-text" id="input_text_smart" rows="3" placeholder="自动清理空格、换行，转换标点"></textarea>
+                            <textarea class="form-control placeholder-text" id="input_text_smart" rows="3" placeholder="全能清理：删除空格换行、转标点、智能分段"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
                             <button type="button" class="btn btn-secondary me-2" onclick="clearInput('smart')">清空</button>
                             <button type="button" class="btn btn-primary me-2" onclick="processText('smart')">转换</button>
                         </div>
-                        <div class="mb-3"><textarea class="form-control" id="output_text_smart" rows="3" readonly></textarea></div>
-                        <div class="d-flex justify-content-center"><button type="button" class="btn btn-success" onclick="copyOutput('smart')">复制</button></div>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="output_text_smart" rows="3" readonly></textarea>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-success" onclick="copyOutput('smart')">复制</button>
+                        </div>
                     </div>
 
                     <!-- 快捷复制 -->
                     <div class="tab-pane fade" id="v-pills-quickcopy" role="tabpanel">
-                        <p class="text-danger">一键复制做项目时常用固定语句</p>
+                        <p class="text-danger">一键复制常用语句</p>
                         <div class="card overflow-auto" style="max-height: 400px;">
                             <div class="card-body" id="quick_copy_area"></div>
                         </div>
                     </div>
 
-                    <!-- 智能标题 -->
+                    <!-- 生成标题 -->
                     <div class="tab-pane fade" id="v-pills-smart-title" role="tabpanel">
                         <div class="mb-3">
                             <label for="inputTitle" class="form-label">请输入申报通知标题：</label>
-                            <textarea class="form-control placeholder-text" id="inputTitle" rows="3" placeholder="输入通知原文生成规范标题"></textarea>
+                            <textarea class="form-control placeholder-text" id="inputTitle" rows="3" placeholder="生成规范项目标题"></textarea>
                         </div>
                         <div class="d-flex justify-content-center mb-3">
                             <button type="button" class="btn btn-secondary me-2" onclick="clearInputSmartTitle()">清空</button>
                             <button type="button" class="btn btn-primary" onclick="generateTitle()">生成</button>
                         </div>
-                        <div class="mb-3"><div class="form-control" style="min-height: 60px;"><span id="outputTitle">等待输入...</span></div></div>
+                        <div class="mb-3">
+                            <div class="form-control" style="min-height: 60px;"><span id="outputTitle">等待输入...</span></div>
+                        </div>
                         <div class="d-flex justify-content-center">
                             <button type="button" class="btn btn-success me-2" onclick="copyOutputSmartTitle()">复制</button>
-                            <button class="btn btn-secondary" onclick="cycleFundingVerb()">更换资助方式</button>
+                            <button class="btn btn-secondary" onclick="cycleFundingVerb()">更换</button>
                         </div>
                     </div>
                 </div>
@@ -150,13 +179,13 @@
         </div>
     </div>
 
-    <!-- UI 组件 -->
+    <!-- UI 模态框和 Toast -->
     <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
         <div id="liveToast" class="toast" role="alert"><div class="toast-body" id="toast-message"></div></div>
     </div>
-    <div class="modal fade" id="keywordAlertModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body" id="keywordAlertModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">关闭</button></div></div></div></div>
+    <div class="modal fade" id="keywordAlertModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">提示</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="keywordAlertModalBody"></div></div></div></div>
 
-    <!-- 脚本加载 -->
+    <!-- 加载顺序：必须先加载基础，再加载核心 script.js -->
     <script src="./static/js/bootstrap.bundle.min.js"></script>
     <script src="./static/js/script.js"></script>
     <script src="./static/js/level1_level2_quickcopy_script.js"></script>
