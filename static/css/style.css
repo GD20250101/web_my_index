@@ -1,0 +1,145 @@
+/*
+ * style.css - 自定义样式文件
+ *
+ * 您可以在这里添加任何自定义的CSS规则
+ */
+
+/* 示例：如果需要对body或通用元素设置一些全局样式 */
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+/* 调整容器高度，确保内容区占据剩余空间 */
+.container-fluid.h-100 {
+    min-height: 100vh; /* 确保至少视口高度 */
+}
+
+/* 确保主内容区域的tab-content能自适应高度 */
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* 调整 Tab Pane 内部的间距，使其内容与顶部和底部不那么紧凑 */
+.tab-pane {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-top: 1.5rem; /* 增加顶部间距 */
+    padding-bottom: 1.5rem; /* 增加底部间距 */
+}
+
+.tab-pane .mb-3 {
+    margin-bottom: 1rem !important; /* 确保间距 */
+}
+
+/* 输入输出文本区域的样式调整 */
+textarea {
+    resize: vertical; /* 允许用户垂直调整大小 */
+    min-height: 60px; /* 最小高度调小一半 */
+}
+
+/* 使按钮组居中 */
+.d-flex.justify-content-center {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px; /* 增加一些顶部间距 */
+    margin-bottom: 15px; /* 增加一些底部间距 */
+}
+
+/* 快捷复制区域的卡片样式 */
+#quick_copy_area {
+    margin-top: 15px;
+}
+
+#quick_copy_area .py-2 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+#quick_copy_area .ms-3 {
+    margin-left: 1rem !important;
+}
+
+/* Toast 通知样式 */
+.toast-container {
+    padding: 1rem;
+}
+
+.toast {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+.toast-header {
+    background-color: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+    color: #495057;
+}
+
+.toast-body {
+    color: #212529;
+}
+
+
+/* placeholder 文本样式 */
+.form-control.placeholder-active {
+    color: #adb5bd; /* 调浅灰色 */
+}
+
+/* 移除输入框焦点时的蓝色发光效果，改为蓝色边框 */
+.form-control:focus {
+    border-color: #007bff; /* Bootstrap primary blue */
+    box-shadow: none; /* 移除发光效果 */
+    outline: 0; /* 确保不显示浏览器默认的焦点轮廓 */
+}
+
+/* 顶部标题字体大小和加粗 */
+#status-message {
+    font-size: 1.5rem; /* 稍微调大 */
+    font-weight: bold; /* 加粗 */
+}
+
+/* 为转换、清空、复制按钮添加鼠标悬停动画 */
+.btn-primary,
+.btn-secondary,
+.btn-success {
+    transition: transform 0.2s ease-out; /* 定义平滑的过渡效果，0.2秒，缓出 */
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-success:hover {
+    transform: translateY(-3px); /* 鼠标悬停时向上移动3像素 */
+}
+
+/* --- 以下是为“生成标题”功能新增和调整的CSS样式 --- */
+
+/* 覆盖智能标题textarea的最小高度，采用副网页的设置 */
+#v-pills-smart-title textarea.form-control {
+    min-height: 100px; 
+}
+
+/* 清空、生成、复制按钮的尺寸将由Bootstrap的.btn类以及父容器的d-flex控制 */
+#v-pills-smart-title button.btn-primary,
+#v-pills-smart-title button.btn-secondary,
+#v-pills-smart-title button.btn-success {
+    /* 它们现在将继承Bootstrap的display: inline-block;，并根据内容自适应宽度 */
+}
+
+/* 转换资助方式按钮的特定样式覆盖 */
+#convertVerbButton.btn-secondary {
+    padding: 8px 15px; /* 保持副网页的较小内边距 */
+    font-size: 0.9em; /* 保持副网页的较小字体 */
+    background-color: #6c757d; /* 副网页的灰色按钮颜色 */
+    /* Bootstrap的btn-secondary类提供了border, color等，这里主要覆盖背景色 */
+}
+#convertVerbButton.btn-secondary:hover {
+    background-color: #5a6268; /* 副网页的hover颜色 */
+}
