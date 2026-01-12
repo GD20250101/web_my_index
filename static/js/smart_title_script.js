@@ -116,7 +116,7 @@ function formatLocationForOutput(rawLocation) {
  * 提取批次信息
  */
 function extractBatchInfo(text) {
-    const match = text.match(/(第[\u4e00-\u9fa5\d]+(?:批|届))/);
+    const match = text.match(/(第[\u4e00-\u9fa5\d]+(?:批|届|季度))/);
     return match ? match[1] : null;
 }
 
