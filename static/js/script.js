@@ -305,7 +305,7 @@ function convertChineseTimePunctuationToEnglish(text) {
 }
 
 
-// 英文标点符号转换为中文标点符号函数 (已优化，防止URL/时间/比号/句号被破坏，不再转换 '/')
+// 英文标点符号转换为中文标点符号函数 (已根据需求调整：所有横杠统一转为英文短横线 "-")
 function replaceEnglishPunctuationToChinese(text) {
     // 豁免模式：URL、FTP、域名、时间格式、以及数字比号格式 (如 1:1, 10:5:2)
     const exempt_pattern = /(https?:\/\/[^\s]+|ftp:\/\/[^\s]+|\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}(?:\/[^\s]*)?(?:[?#][^\s]*)?\b|\b\d{1,2}:\d{2}(?::\d{2})?\b|\b\d+:\d+(?::\d+)*\b)/gi;
@@ -319,8 +319,10 @@ function replaceEnglishPunctuationToChinese(text) {
             let non_exempt_text = text.substring(lastIndex, match.index);
             let converted_segment = non_exempt_text;
 
-            converted_segment = converted_segment.replace(/---/g, '——'); 
-            converted_segment = converted_segment.replace(/--/g, '——'); 
+            // --- 修改部分：处理横杠 ---
+            // 将所有形式的横杠（长横信号、全角横杠、多重横线、破折号）统一转化为英文半角 "-"
+            converted_segment = converted_segment.replace(/[—－——-]+/g, '-'); 
+            
             converted_segment = converted_segment.replace(/\.{3,}/g, '…'); 
 
             let tempInDoubleQuote = false; 
@@ -334,7 +336,6 @@ function replaceEnglishPunctuationToChinese(text) {
                 return tempInSingleQuote ? '‘' : '’';
             });
 
-            // 移除 .replace(/\./g, '。')，使英文句号不被转换
             converted_segment = converted_segment
                 .replace(/,/g, '，')             
                 .replace(/;/g, '；') .replace(/\?/g, '？') .replace(/!/g, '！') 
@@ -343,7 +344,8 @@ function replaceEnglishPunctuationToChinese(text) {
                 .replace(/\{/g, '｛') .replace(/\}/g, '｝')             
                 .replace(/%/g, '％') .replace(/~/g, '～') .replace(/\$/g, '＄') .replace(/#/g, '＃')
                 .replace(/@/g, '＠') .replace(/\\/g, '＼')              
-                .replace(/\^/g, '＾') .replace(/_/g, '＿') .replace(/-/g, '－'); 
+                .replace(/\^/g, '＾') .replace(/_/g, '＿'); 
+                // 此处删除了原本的 .replace(/-/g, '－')，确保横杠保持为半角
 
             // 确保冒号在非豁免情况下仍然转换为中文冒号，此行应放在豁免处理之后
             converted_segment = converted_segment.replace(/:/g, '：'); 
@@ -358,14 +360,15 @@ function replaceEnglishPunctuationToChinese(text) {
         let non_exempt_text = text.substring(lastIndex);
         let converted_segment = non_exempt_text;
         
-        converted_segment = converted_segment.replace(/---/g, '——');
-        converted_segment = converted_segment.replace(/--/g, '——');
+        // --- 修改部分：同上处理横杠 ---
+        converted_segment = converted_segment.replace(/[—－——-]+/g, '-');
+        
         converted_segment = converted_segment.replace(/\.{3,}/g, '…');
         let tempInDoubleQuote = false;
         converted_segment = converted_segment.replace(/"/g, () => { tempInDoubleQuote = !tempInDoubleQuote; return tempInDoubleQuote ? '“' : '”'; });
         let tempInSingleQuote = false;
         converted_segment = converted_segment.replace(/'/g, () => { tempInSingleQuote = !tempInSingleQuote; return tempInSingleQuote ? '‘' : '’'; });
-        // 移除 .replace(/\./g, '。')，使英文句号不被转换
+        
         converted_segment = converted_segment
             .replace(/,/g, '，')
             .replace(/;/g, '；').replace(/\?/g, '？').replace(/!/g, '！')
@@ -373,7 +376,8 @@ function replaceEnglishPunctuationToChinese(text) {
             .replace(/\[/g, '〔').replace(/\]/g, '〕').replace(/\{/g, '｛').replace(/\}/g, '｝')
             .replace(/%/g, '％').replace(/~/g, '～').replace(/\$/g, '＄').replace(/#/g, '＃')
             .replace(/@/g, '＠').replace(/\\/g, '＼')
-            .replace(/\^/g, '＾').replace(/\_/g, '＿').replace(/-/g, '－'); 
+            .replace(/\^/g, '＾').replace(/\_/g, '＿'); 
+            // 同样删除了末尾转换 - 的 .replace(/-/g, '－')
         
         // 确保冒号在非豁免情况下仍然转换为中文冒号
         converted_segment = converted_segment.replace(/:/g, '：');
