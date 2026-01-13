@@ -215,6 +215,8 @@
                         </div>
                         
                         <div class="d-flex justify-content-center">
+                            <!-- 已在下方新增“复制简称”按钮 -->
+                            <button type="button" class="btn btn-info me-2 text-white" onclick="copyShortOutputSmartTitle()">复制简称</button>
                             <button type="button" class="btn btn-success me-2" onclick="copyOutputSmartTitle()">复制</button>
                             <button id="convertVerbButton" class="btn btn-secondary" onclick="cycleFundingVerb()">更换</button>
                         </div>
@@ -256,7 +258,7 @@
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="./static/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JavaScript - 核心公共文件，必须先加载 -->
+    <!-- Custom JavaScript -->
     <script src="./static/js/script.js"></script>
     <script src="./static/js/level1_level2_quickcopy_script.js"></script>
     <script src="./static/js/two_level_script.js"></script>
