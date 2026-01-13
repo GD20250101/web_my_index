@@ -2,6 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     try {
+        // 1. 初始化动态日期（新增）
+        initDynamicDate();
+
         // 关键检查：确保 Bootstrap JavaScript 已经加载并可用
         if (typeof bootstrap === 'undefined' || typeof bootstrap.Tab === 'undefined' || typeof bootstrap.Toast === 'undefined' || typeof bootstrap.Modal === 'undefined') {
             console.error("错误：Bootstrap JavaScript 未加载或初始化成功。请检查 './static/js/bootstrap.bundle.min.js' 路径是否正确且文件未损坏。");
@@ -50,6 +53,21 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification("页面初始化检测到问题请查看浏览器控制台F12获取详情");
     }
 });
+
+// --- 新增：动态时间初始化函数 ---
+function initDynamicDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const date = today.getDate();
+    const dayNames = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+    const day = dayNames[today.getDay()];
+    
+    const dateDiv = document.getElementById('current-date-display');
+    if (dateDiv) {
+        dateDiv.textContent = `今天是${year}年${month}月${date}日 ${day}`;
+    }
+}
 
 // 显示 Toast 通知 (用于一般性短暂提示)
 function showNotification(message) {
@@ -235,7 +253,6 @@ function remove_all_internal_whitespace(text) {
 }
 
 // 辅助函数：移除行开头可能存在的旧序号和多余空格，并确保内容完全紧凑（无空格）。
-// 特殊处理年份，不移除年份。
 function remove_leading_patterns_and_compact_content(line) {
     let currentCompactedLine = remove_all_internal_whitespace(line); 
     if (!currentCompactedLine) return '';
@@ -318,8 +335,6 @@ function replaceEnglishPunctuationToChinese(text) {
         if (match.index > lastIndex) {
             let non_exempt_text = text.substring(lastIndex, match.index);
             let converted_segment = non_exempt_text;
-
-            // --- 修改部分：处理横杠 ---
             // 将所有形式的横杠（长横信号、全角横杠、多重横线、破折号）统一转化为英文半角 "-"
             converted_segment = converted_segment.replace(/[—－——-]+/g, '-'); 
             
@@ -345,7 +360,7 @@ function replaceEnglishPunctuationToChinese(text) {
                 .replace(/%/g, '％') .replace(/~/g, '～') .replace(/\$/g, '＄') .replace(/#/g, '＃')
                 .replace(/@/g, '＠') .replace(/\\/g, '＼')              
                 .replace(/\^/g, '＾') .replace(/_/g, '＿'); 
-                // 此处删除了原本的 .replace(/-/g, '－')，确保横杠保持为半角
+                
 
             // 确保冒号在非豁免情况下仍然转换为中文冒号，此行应放在豁免处理之后
             converted_segment = converted_segment.replace(/:/g, '：'); 
