@@ -8,19 +8,37 @@ body {
     color: #343a40;
 }
 
-/* 调整容器高度，确保内容区占据剩余空间 */
-.container-fluid.h-100 {
-    min-height: 100vh;
+/* 顶部导航条样式 */
+.top-info-bar {
+    background-color: #f9f9fa;
+    color: #495057;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    border-bottom: 1px solid #ddecff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-/* 确保主内容区域的tab-content能自适应高度 */
+.top-slogan {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.update-info {
+    color: #6c757d;
+}
+
+/* 容器及主内容区布局 */
+.container-fluid.h-100 {
+    min-height: calc(100vh - 36px); 
+}
+
 .tab-content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
-/* 调整 Tab Pane 内部的间距 */
+/* Tab Pane 内部布局 */
 .tab-pane {
     display: flex;
     flex-direction: column;
@@ -34,13 +52,13 @@ body {
     margin-bottom: 1rem !important;
 }
 
-/* 输入输出文本区域的样式调整 */
+/* 输入输出文本区域 */
 textarea {
     resize: vertical;
     min-height: 60px;
 }
 
-/* 使按钮组居中 */
+/* 按钮组居中 */
 .d-flex.justify-content-center {
     display: flex;
     justify-content: center;
@@ -48,7 +66,7 @@ textarea {
     margin-bottom: 15px;
 }
 
-/* 快捷复制区域的卡片样式 */
+/* 快捷复制区域样式 */
 #quick_copy_area {
     margin-top: 15px;
 }
@@ -84,49 +102,44 @@ textarea {
     color: #212529;
 }
 
-
 /* placeholder 文本样式 */
 .form-control.placeholder-active {
     color: #adb5bd;
 }
 
-/* 移除输入框焦点时的蓝色发光效果 */
+/* 移除输入框焦点发光效果 */
 .form-control:focus {
     border-color: #007bff;
     box-shadow: none;
     outline: 0;
 }
 
-/* 顶部标题字体大小和加粗 */
+/* 顶部标题样式 */
 #status-message {
     font-size: 1.5rem;
     font-weight: bold;
 }
 
-/* --- 修改点：通用的按钮悬停动画 --- */
-/* 为所有按钮添加平滑过渡效果 */
+/* 按钮全局悬停动画 */
 .btn {
     transition: transform 0.2s ease-out !important;
 }
 
-/* 鼠标悬停时所有按钮向上移动 3 像素 */
 .btn:hover {
     transform: translateY(-3px) !important;
 }
 
-/* --- 以下是为“生成标题”功能新增和调整的CSS样式 --- */
-
-/* 覆盖智能标题textarea的最小高度 */
+/* 生成标题功能相关样式 */
 #v-pills-smart-title textarea.form-control {
     min-height: 100px; 
 }
 
-/* 转换资助方式按钮的特定样式覆盖 */
 #convertVerbButton.btn-secondary {
     padding: 8px 15px;
     font-size: 0.9em;
     background-color: #6c757d;
 }
+
 #convertVerbButton.btn-secondary:hover {
     background-color: #5a6268;
 }
