@@ -3,19 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智文助手-高效做项目工具</title>
+    <title>自动编号操作页面</title>
     <!-- Bootstrap CSS -->
     <link href="./static/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./static/css/style.css">
 </head>
 <body>
+    <!-- 顶部导航条（新增） -->
+    <div class="top-info-bar">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <div id="current-date-display">正在加载日期...</div>
+            <!--<div class="top-slogan">祝您今天工作愉快！</div>-->
+            <div class="update-info">最近更新代码时间为2026年1月13日</div>
+        </div>
+    </div>
+
     <!-- 整体容器 -->
     <div class="container-fluid h-100 d-flex flex-column">
         <!-- 顶部状态栏 -->
         <header class="row bg-light p-2 border-bottom">
             <div class="col-12 text-center">
-                <span id="status-message" class="text-dark">智文助手-高效做项目工具</span>
+                <span id="status-message" class="text-dark">自动编号工具</span>
             </div>
         </header>
 
